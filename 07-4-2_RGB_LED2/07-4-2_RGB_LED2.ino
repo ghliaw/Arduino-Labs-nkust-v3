@@ -1,3 +1,4 @@
+// Common anode RGB LED
 const int Red = 9;
 const int Green = 10;
 const int Blue = 11;
