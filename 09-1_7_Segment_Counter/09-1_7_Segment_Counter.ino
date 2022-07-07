@@ -8,9 +8,9 @@ int state;
 
 void setup() {
   Serial.begin(115200);
-  byte numDigits = 4;
-  byte digitPins[] = {8, 12, 13, 2};
-  byte segmentPins[] = {9, 11, 4, 6, 7, 10, 3, 5};
+  byte numDigits = 1;
+  byte digitPins[] = {2};
+  byte segmentPins[] = {5, 6, 8, 9, 10, 4, 3, 7};
   bool resistorsOnSegments = false; // 'false' means resistors are on digit pins
   byte hardwareConfig = COMMON_ANODE; // 共陽極：COMMON_ANODE；共陰極：COMMON_CATHODE 
   bool updateWithDelays = false; // Default 'false' is Recommended
@@ -28,7 +28,7 @@ void loop() {
   static char buf[10];
   static int  length = 0;
   int incoming_byte;
-  static unsigned long current, last, last2;
+  static unsigned long current, last;
   static int target; 
 
   if(state == STATE_INPUT) {
@@ -41,15 +41,13 @@ void loop() {
         buf[length++] = '\0';
         // do job
         target = atoi(buf);
-        if(target<=0 || target>999) Serial.println("Out of range (1-999)");
+        if(target<=0 || target>9) Serial.println("Out of range (1-9)");
         else {
           Serial.print("Start: ");
           Serial.println(target);
           state = STATE_COUNT;
-          target = target*10;
-          sevseg.setNumber(target,1);
+          sevseg.setNumber(target,0);
           last = millis();
-          last2 = millis();
         }
         length = 0;
       }
@@ -57,15 +55,15 @@ void loop() {
   }
   else if (state == STATE_COUNT) {
     current = millis();
-    if (current - last >= 100) {
+    if (current - last >= 1000) {
       last = current;
       target -= 1;
-      if(target%10==0) Serial.println(target/10);
+      Serial.println(target);
       if(target==0) {
         sevseg.setNumber(0, 0);
         state = STATE_INPUT;
       }
-      else sevseg.setNumber(target, 1);
+      else sevseg.setNumber(target, 0);
     }
   }
 
